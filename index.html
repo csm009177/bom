@@ -105,16 +105,21 @@
                     }, 3000);
                 }
             ],
-            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 누르면 Window 친구가 나타날거야!',
+            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 누르면 새로운 Window 친구가 나타날 거야!',
                 () => {
-                    window.open('/index.html', '_blank', '');
+                    // 현재 스테이지 번호를 URL 쿼리 파라미터로 넘겨줍니다.
+                    // '/index.html'은 현재 HTML 파일의 경로를 가정합니다.
+                    // 만약 파일 이름이 다르다면, 'your-file-name.html' 등으로 수정하세요.
+                    const targetUrl = new URL(window.location.href);
+                    targetUrl.searchParams.set('initialStage', 현재스테이지); // 'initialStage'라는 이름으로 현재 스테이지 값 전달
+
+                    window.open(targetUrl.href, '_blank', ''); // 수정된 URL로 새 창 열기
                 }
             ],
-
-
         ];
 
-        let 현재스테이지 = 0;
+        let 현재스테이지 = 0; // 초기값은 0
+
         const 이전버튼 = document.getElementById("이전버튼");
         const 좋아버튼 = document.getElementById("좋아버튼");
         const 다음버튼 = document.getElementById("다음버튼");
@@ -123,42 +128,57 @@
 
         function 창문을새롭게하기() {
             console.log("현재스테이지 : " + 현재스테이지);
-            창문이말하는곳.innerText = 스테이지[현재스테이지][0];
+            창문이말하는곳.innerText = 스테이지[현재스테이지]?.[0] || ''; // 옵셔널 체이닝으로 안전하게 접근
             이전버튼.disabled = 현재스테이지 <= 0;
             다음버튼.disabled = 현재스테이지 >= 스테이지.length - 1;
 
             // 새로운 스테이지로 이동할 때마다 'url' 쿼리 파라미터를 정리
-            // 이렇게 하면 다른 스테이지로 넘어갔을 때 URL이 깨끗하게 유지됩니다.
             removeUrlQueryParam('url');
+            // 'initialStage' 파라미터는 새로 로드될 때만 필요하고, 이후에는 제거합니다.
+            // 이 함수가 호출될 때마다 'initialStage'를 제거하면, '좋아' 버튼 등으로
+            // 새로고침해도 파라미터가 사라지므로, `window.onload`에서만 제거하도록 조정했습니다.
         }
 
         window.onload = function () {
-            console.log("현재스테이지 : " + 현재스테이지);
-            창문을새롭게하기(); // 초기 UI 설정
+            // 페이지 로드 시 URL에서 'initialStage' 쿼리 파라미터를 확인합니다.
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialStageFromUrl = urlParams.get('initialStage');
+
+            if (initialStageFromUrl !== null) {
+                // URL에 'initialStage' 파라미터가 있다면 그 값으로 현재스테이지를 설정합니다.
+                현재스테이지 = parseInt(initialStageFromUrl, 10);
+                // URL에서 사용된 initialStage 파라미터는 초기화 후 제거합니다.
+                removeUrlQueryParam('initialStage');
+            } else {
+                // URL에 파라미터가 없다면 기본값인 0으로 시작합니다.
+                현재스테이지 = 0;
+            }
+
+            console.log("초기 로드 시 현재스테이지 : " + 현재스테이지);
+            창문을새롭게하기(); // 초기 UI 설정 (변경된 현재스테이지 값 반영)
+
+            // 처음버튼은 현재 스테이지가 0일 때만 활성화/비활성화
+            // (이미 `창문을새롭게하기()`에서 `이전버튼`과 동일하게 처리됨)
 
             // 모든 버튼의 이벤트 리스너는 여기서 한 번만 등록
             이전버튼.addEventListener('click', function () {
                 현재스테이지--;
-                console.log("현재스테이지 : " + 현재스테이지);
-                창문을새롭게하기(); // UI 업데이트 및 URL 정리
+                창문을새롭게하기();
             });
 
             좋아버튼.addEventListener('click', function () {
-                // 현재 스테이지에 해당하는 함수만 실행
-                스테이지[현재스테이지][1]();
-                console.log("현재스테이지 : " + 현재스테이지);
+                // 현재 스테이지에 해당하는 함수가 있다면 실행합니다.
+                스테이지[현재스테이지]?.[1]?.(); // 옵셔널 체이닝 추가
             });
 
             다음버튼.addEventListener('click', function () {
                 현재스테이지++;
-                창문을새롭게하기(); // UI 업데이트 및 URL 정리
-                console.log("현재스테이지 : " + 현재스테이지);
+                창문을새롭게하기();
             });
 
             처음버튼.addEventListener('click', function () {
                 현재스테이지 = 0;
-                창문을새롭게하기(); // UI 업데이트 및 URL 정리
-                console.log("현재스테이지 : " + 현재스테이지);
+                창문을새롭게하기();
             });
         };
     </script>
