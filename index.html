@@ -60,46 +60,58 @@
     <button id="다음버튼">다음으로</button>
 
     <script>
+        // URL에서 특정 쿼리 파라미터를 제거하는 함수
+        function removeUrlQueryParam(paramName) {
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.has(paramName)) {
+                currentUrl.searchParams.delete(paramName);
+                window.history.pushState({}, '', currentUrl);
+            }
+        }
+
         const 스테이지 = [
-            ['나는 BOM이야! \n 나는 창문을 조종할수 있어\n 먼저 alert를 불러볼까?',
-                () => { window.alert("안녕 나는 alert야") }],
-            ['이번에는 내친구 url을 불러볼까? url친구는 지금 있는 위치를 알려주는 친구야',
-                () => {
-                    // url에 나타나기 "안녕 나는 url이야" 라는 글자를 추가해볼까?
+            ['나는 BOM이야! \n 나는 요술을 부리는 창문을 조종할수 있어\n 먼저 alert를 불러볼까? \n "좋아"를 누르면 뭔가 나타날 거야!',
+                () => { window.alert("안녕 나는 alert야"); }
+            ],
+            ['이번에는 내친구 url을 불러볼까? \n url친구는 지금 있는 위치를 알려주는 친구야 \n "좋아"를 누르면 뭔가 나타날 거야!',
+                () => { // 두 번째 스테이지 '좋아' 버튼 클릭 시
                     const url = new URL(window.location.href);
-                    url.searchParams.set('url', '안녕 나는 url이야');
+                    // 'url' 파라미터가 이미 있으면 삭제하고, 없으면 추가합니다.
+                    // 이렇게 하면 '좋아' 버튼을 반복해서 눌러도 토글처럼 동작합니다.
+                    if (url.searchParams.has('url')) {
+                        url.searchParams.delete('url');
+                    } else {
+                        url.searchParams.set('url', '★안녕 나는 url이야★');
+                    }
                     window.history.pushState({}, '', url);
-                    // 버튼 누르면 url에 나타난 "안녕 나는 url이야"가 사라지게 해볼까?
-                    이전버튼.addEventListener('click', function () {
-                        url.searchParams.delete('url');
-                        window.history.pushState({}, '', url);
-                    });
-                    다음버튼.addEventListener('click', function () {
-                        url.searchParams.delete('url');
-                        window.history.pushState({}, '', url);
-                    });
-                    좋아버튼.addEventListener('click', function () {
-                        url.searchParams.delete('url');
-                        window.history.pushState({}, '', url);
-                    });
-                    // 다시 좋아버튼을 누르면 나오도록
-                    좋아버튼.addEventListener('click', function () {
-                        url.searchParams.set('url', '안녕 나는 url이야');
-                        window.history.pushState({}, '', url);
-                    });
-                }],
-            ['내친구 location은 url친구의 친구야. \n location은 현재 페이지의 주소를 알려주는 친구야.\n\n"좋아"를 누르면 현재 URL 정보들을 보여줄게!',
+                }
+            ],
+            ['이번에는 좀 큰친구 document를 만나볼까? !\n"좋아"를 누르면 document 친구가 반짝반짝 변할 거야! \n 좋아를 많이 누르면 친구가 더 좋아할거야!',
                 () => {
-                    // location 객체의 주요 속성들을 화면에 표시
-                    const locationInfo = `
-            현재 URL (href): ${window.location.href}
-            경로 (pathname): ${window.location.pathname}
-            쿼리 스트링 (search): ${window.location.search}
-            호스트 (host): ${window.location.host}
-            프로토콜 (protocol): ${window.location.protocol}
-        `;
-                    alert(locationInfo);
-                }],
+                    const doc = document;
+                    const 색갈리스트 = ['#ffcccc', '#ccffcc', '#ccccff', '#ffffcc', '#ffccff']; // 파스텔 톤 색상
+                    let colorIndex = 0;
+                    const originalBodyBg = doc.body.style.backgroundColor; // 원래 body 배경색 저장
+
+                    // 0.1초마다 색깔을 바꾸는 함수
+                    const intervalId = setInterval(() => {
+                        doc.body.style.backgroundColor = 색갈리스트[colorIndex];
+                        colorIndex = (colorIndex + 1) % 색갈리스트.length;
+                    }, 100);
+
+                    setTimeout(() => {
+                        clearInterval(intervalId);
+                        doc.body.style.backgroundColor = originalBodyBg;
+                    }, 3000);
+                }
+            ],
+            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 누르면 Window 친구가 나타날거야!',
+                () => {
+                    window.open('/index.html', '_blank', '');
+                }
+            ],
+
+
         ];
 
         let 현재스테이지 = 0;
@@ -107,39 +119,48 @@
         const 좋아버튼 = document.getElementById("좋아버튼");
         const 다음버튼 = document.getElementById("다음버튼");
         const 창문이말하는곳 = document.getElementById("창문이말하는곳");
+        const 처음버튼 = document.getElementById("처음버튼");
 
         function 창문을새롭게하기() {
+            console.log("현재스테이지 : " + 현재스테이지);
             창문이말하는곳.innerText = 스테이지[현재스테이지][0];
-            이전버튼.disabled = 현재스테이지 <= 0 ? true : false;
+            이전버튼.disabled = 현재스테이지 <= 0;
+            다음버튼.disabled = 현재스테이지 >= 스테이지.length - 1;
 
-            다음버튼.disabled = 현재스테이지 >= 스테이지.length - 1 ? true : false;
-
-
+            // 새로운 스테이지로 이동할 때마다 'url' 쿼리 파라미터를 정리
+            // 이렇게 하면 다른 스테이지로 넘어갔을 때 URL이 깨끗하게 유지됩니다.
+            removeUrlQueryParam('url');
         }
 
         window.onload = function () {
-            console.log("현재스테이지 : " + 현재스테이지)
-            창문을새롭게하기();
+            console.log("현재스테이지 : " + 현재스테이지);
+            창문을새롭게하기(); // 초기 UI 설정
 
+            // 모든 버튼의 이벤트 리스너는 여기서 한 번만 등록
             이전버튼.addEventListener('click', function () {
                 현재스테이지--;
-                창문을새롭게하기();
+                console.log("현재스테이지 : " + 현재스테이지);
+                창문을새롭게하기(); // UI 업데이트 및 URL 정리
             });
 
             좋아버튼.addEventListener('click', function () {
+                // 현재 스테이지에 해당하는 함수만 실행
                 스테이지[현재스테이지][1]();
+                console.log("현재스테이지 : " + 현재스테이지);
             });
 
             다음버튼.addEventListener('click', function () {
                 현재스테이지++;
-                창문을새롭게하기();
+                창문을새롭게하기(); // UI 업데이트 및 URL 정리
+                console.log("현재스테이지 : " + 현재스테이지);
             });
 
-
-        }
-
-
-
+            처음버튼.addEventListener('click', function () {
+                현재스테이지 = 0;
+                창문을새롭게하기(); // UI 업데이트 및 URL 정리
+                console.log("현재스테이지 : " + 현재스테이지);
+            });
+        };
     </script>
 
 </body>
