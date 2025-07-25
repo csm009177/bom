@@ -105,15 +105,24 @@
                     }, 3000);
                 }
             ],
-            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 누르면 새로운 Window 친구가 나타날 거야!',
+            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 Window 친구가 분신술을 쓸거야!',
                 () => {
-                    // 현재 스테이지 번호를 URL 쿼리 파라미터로 넘겨줍니다.
-                    // '/index.html'은 현재 HTML 파일의 경로를 가정합니다.
-                    // 만약 파일 이름이 다르다면, 'your-file-name.html' 등으로 수정하세요.
-                    const targetUrl = new URL(window.location.href);
-                    targetUrl.searchParams.set('initialStage', 현재스테이지); // 'initialStage'라는 이름으로 현재 스테이지 값 전달
+                    // 3초 동안 0.05초마다 새로운 창을 열기 with 타이틀이 Window 친구
+                    const openedWindows = [];
+                    const intervalId = setInterval(() => {
+                        const targetUrl = new URL(window.location.href);
+                        targetUrl.searchParams.set('initialStage', 현재스테이지);
+                        const win = window.open(targetUrl.href, '_blank', '');
+                        if (win) openedWindows.push(win);
+                    }, 1);
 
-                    window.open(targetUrl.href, '_blank', ''); // 수정된 URL로 새 창 열기
+                    setTimeout(() => {
+                        clearInterval(intervalId);
+                        // 3초 후 열린 모든 창 닫기
+                        openedWindows.forEach(win => {
+                            try { win.close(); } catch (e) {}
+                        });
+                    }, 3000);
                 }
             ],
         ];
