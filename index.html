@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOM</title>
+    <title>Window</title>
 </head>
 <style>
     body {
@@ -70,7 +70,7 @@
         }
 
         const 스테이지 = [
-            ['나는 BOM이야! \n 나는 요술을 부리는 창문을 조종할수 있어\n 먼저 alert를 불러볼까? \n "좋아"를 누르면 뭔가 나타날 거야!',
+            ['나는 Window이야! \n 나는 여러 친구를 불를수 있어 \n 먼저 alert를 불러볼까? \n "좋아"를 누르면 뭔가 나타날 거야!',
                 () => { window.alert("안녕 나는 alert야"); }
             ],
             ['이번에는 내친구 url을 불러볼까? \n url친구는 지금 있는 위치를 알려주는 친구야 \n "좋아"를 누르면 뭔가 나타날 거야!',
@@ -105,7 +105,7 @@
                     }, 3000);
                 }
             ],
-            ['이번에는 Window 친구를 만나볼까? \n Window 친구가 바로 요술창문이야! \n "좋아"를 Window 친구가 분신술을 쓸거야!',
+            ['이번에는 요술창문인 나를 보여주겠어 \n "좋아"를 누르면 내가 분신술을 쓸거야!',
                 () => {
                     // 3초 동안 0.05초마다 새로운 창을 열기 with 타이틀이 Window 친구
                     const openedWindows = [];
@@ -122,9 +122,16 @@
                         openedWindows.forEach(win => {
                             try { win.close(); } catch (e) {}
                         });
-                    }, 3000);
+                    }, 1500);
                 }
             ],
+            ['이번에는 location 친구를 만나볼까? \n location 친구는 지금 있는 위치를 알려주는 친구야 \n "좋아"를 누르면 location 친구가 반짝반짝 변할 거야!',
+                () => {
+                    const loc = window.location;
+                    console.log("현재 URL:", loc.href);
+                }
+            ],
+
         ];
 
         let 현재스테이지 = 0; // 초기값은 0
