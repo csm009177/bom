@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOM</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        text-align: center;
+    }
+
+    #창문이말하는곳 {
+        white-space: pre-wrap;
+        /* 줄 바꿈 문자를 유지하기 위해 */
+        margin-bottom: 20px;
+        font-size: 1.2em;
+        min-height: 80px;
+        /* 내용이 바뀌어도 레이아웃이 크게 흔들리지 않도록 최소 높이 설정 */
+        border: 1px solid #eee;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    button {
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+</style>
+
+<body>
+    <h1> <button id="처음버튼">BOM!!</button></h1>
+    <p id="창문이말하는곳"></p>
+    <button id="이전버튼">이전으로</button>
+    <button id="좋아버튼">좋아</button>
+    <button id="다음버튼">다음으로</button>
+
+    <script>
+        const 스테이지 = [
+            ['나는 BOM이야! \n 나는 창문을 조종할수 있어\n 먼저 alert를 불러볼까?',
+                () => { window.alert("안녕 나는 alert야") }],
+            ['이번에는 내친구 url을 불러볼까? url친구는 지금 있는 위치를 알려주는 친구야',
+                () => {
+                    // url에 나타나기 "안녕 나는 url이야" 라는 글자를 추가해볼까?
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('url', '안녕 나는 url이야');
+                    window.history.pushState({}, '', url);
+                    // 버튼 누르면 url에 나타난 "안녕 나는 url이야"가 사라지게 해볼까?
+                    이전버튼.addEventListener('click', function () {
+                        url.searchParams.delete('url');
+                        window.history.pushState({}, '', url);
+                    });
+                    다음버튼.addEventListener('click', function () {
+                        url.searchParams.delete('url');
+                        window.history.pushState({}, '', url);
+                    });
+                    좋아버튼.addEventListener('click', function () {
+                        url.searchParams.delete('url');
+                        window.history.pushState({}, '', url);
+                    });
+                    // 다시 좋아버튼을 누르면 나오도록
+                    좋아버튼.addEventListener('click', function () {
+                        url.searchParams.set('url', '안녕 나는 url이야');
+                        window.history.pushState({}, '', url);
+                    });
+                }],
+            ['내친구 location은 url친구의 친구야. \n location은 현재 페이지의 주소를 알려주는 친구야.\n\n"좋아"를 누르면 현재 URL 정보들을 보여줄게!',
+                () => {
+                    // location 객체의 주요 속성들을 화면에 표시
+                    const locationInfo = `
+            현재 URL (href): ${window.location.href}
+            경로 (pathname): ${window.location.pathname}
+            쿼리 스트링 (search): ${window.location.search}
+            호스트 (host): ${window.location.host}
+            프로토콜 (protocol): ${window.location.protocol}
+        `;
+                    alert(locationInfo);
+                }],
+        ];
+
+        let 현재스테이지 = 0;
+        const 이전버튼 = document.getElementById("이전버튼");
+        const 좋아버튼 = document.getElementById("좋아버튼");
+        const 다음버튼 = document.getElementById("다음버튼");
+        const 창문이말하는곳 = document.getElementById("창문이말하는곳");
+
+        function 창문을새롭게하기() {
+            창문이말하는곳.innerText = 스테이지[현재스테이지][0];
+            이전버튼.disabled = 현재스테이지 <= 0 ? true : false;
+
+            다음버튼.disabled = 현재스테이지 >= 스테이지.length - 1 ? true : false;
+
+
+        }
+
+        window.onload = function () {
+            console.log("현재스테이지 : " + 현재스테이지)
+            창문을새롭게하기();
+
+            이전버튼.addEventListener('click', function () {
+                현재스테이지--;
+                창문을새롭게하기();
+            });
+
+            좋아버튼.addEventListener('click', function () {
+                스테이지[현재스테이지][1]();
+            });
+
+            다음버튼.addEventListener('click', function () {
+                현재스테이지++;
+                창문을새롭게하기();
+            });
+
+
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
